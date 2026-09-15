@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 class PhoneLocationService {
@@ -9,6 +10,58 @@ class PhoneLocationService {
       StreamController<Position>.broadcast();
 
   Stream<Position> get positions => _positionController.stream;
+  LocationSettings get _locationSettings {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidSettings(
+        accuracy: LocationAccuracy.high,
+
+        // Rider must move at least 5 metres
+        // before another location is produced.
+        distanceFilter: 5,
+
+        // Desired update interval.
+        intervalDuration: Duration(seconds: 5),
+
+        foregroundNotificationConfig: ForegroundNotificationConfig(
+          notificationTitle: 'Logistico is tracking your location',
+
+          notificationText: 'Your location is being shared with the customer.',
+
+          notificationChannelName: 'Rider Location',
+
+          enableWakeLock: true,
+
+          setOngoing: true,
+        ),
+      );
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.high,
+
+        distanceFilter: 5,
+
+        activityType: ActivityType.automotiveNavigation,
+
+        // Important for background tracking.
+        allowBackgroundLocationUpdates: true,
+
+        // For a delivery rider, we don't want
+        // Core Location automatically pausing
+        // while the rider is moving.
+        pauseLocationUpdatesAutomatically: false,
+
+        // Shows the iOS background location indicator.
+        showBackgroundLocationIndicator: true,
+      );
+    }
+
+    return const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 5,
+    );
+  }
 
   Future<bool> requestPermission() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -40,13 +93,10 @@ class PhoneLocationService {
 
     await _positionSubscription?.cancel();
 
-    const locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 0,
-    );
-
     _positionSubscription =
-        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+        Geolocator.getPositionStream(
+          locationSettings: _locationSettings,
+        ).listen(
           (position) {
             print(position);
             _positionController.add(position);

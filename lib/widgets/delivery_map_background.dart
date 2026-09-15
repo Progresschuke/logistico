@@ -407,7 +407,9 @@ class _DeliveryMappState extends State<DeliveryMapp> {
     controller = RiderTrackingController(
       riderId: 'rider_123',
       locationService: PhoneLocationService(),
-      socketService: LocationWebSocketService(socketUrl: 'ws://127.0.0.1:8080'),
+      socketService: LocationWebSocketService(
+        socketUrl: LocationWebSocketService.defaultLocalSocketUrl,
+      ),
       routeService: RoutingApiService(
         googleApiKey: dotenv.env['GOOGLE_MAPS_DIRECTIONS_API_KEY'] ?? '',
       ),

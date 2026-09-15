@@ -35,7 +35,14 @@ class RiderTrackingController {
 
   StreamSubscription<Position>? _positionSubscription;
 
+  void _onSocketConnectionChanged() {
+    isSocketConnected.value = socketService.isConnected;
+  }
+
   Future<void> startTracking() async {
+    socketService.isConnectedNotifier.removeListener(_onSocketConnectionChanged);
+    socketService.isConnectedNotifier.addListener(_onSocketConnectionChanged);
+
     await socketService.connect();
 
     isSocketConnected.value = socketService.isConnected;
@@ -80,6 +87,7 @@ class RiderTrackingController {
   }
 
   Future<void> stopTracking() async {
+    socketService.isConnectedNotifier.removeListener(_onSocketConnectionChanged);
     await _positionSubscription?.cancel();
     _positionSubscription = null;
 

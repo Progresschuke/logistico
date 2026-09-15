@@ -51,5 +51,11 @@
 	<string>Logistico requires background location access to update delivery tracking for riders and customers.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Logistico requires location access to track delivery routes.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
 </dict>
 </plist>
